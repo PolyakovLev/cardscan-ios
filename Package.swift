@@ -1,13 +1,11 @@
 // swift-tools-version:5.3
 
-// {{top_comment}}
-
 import PackageDescription
 
 let package = Package(
     name: "CardScan",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v9)
     ],
     products: [
         .library(
@@ -15,12 +13,7 @@ let package = Package(
             targets: ["CardScan"]
         ),
     ],
-    dependencies: [],
     targets: [
-        .binaryTarget(
-            name: "CardScan",
-            url: "{{url}}",
-            checksum: "{{checksum}}"
-        )
+        .testTarget(name: "CardScan", dependencies: [], path: "CardScan/CardScan")
     ]
 )
