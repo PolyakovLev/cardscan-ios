@@ -110,7 +110,7 @@ open class USScanCardViewController: ScanBaseViewController {
     }
     
     open func setupManualEntryButtonUi() {
-        manualEntryButton.setTitle("Ввести вручну", for: .normal)
+        manualEntryButton.setTitle("Ввести вручную", for: .normal)
         manualEntryButton.tintColor = .white
         manualEntryButton.setTitleColor(.white, for: .normal)
         manualEntryButton.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
@@ -204,7 +204,7 @@ open class USScanCardViewController: ScanBaseViewController {
     }
     
     private func setupManualEntryButtonConstraints() {
-        manualEntryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 56).isActive = true
+        manualEntryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -56).isActive = true
         manualEntryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
     
