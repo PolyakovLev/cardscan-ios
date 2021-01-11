@@ -13,7 +13,12 @@ let package = Package(
             targets: ["CardScan"]
         ),
     ],
-    targets: [
-        .testTarget(name: "CardScan", dependencies: [], path: "CardScan/CardScan")
-    ]
+    dependencies: [],
+        targets: [
+            .binaryTarget(
+                name: "CardScan",
+                url: "https://github.com/PolyakovLev/cardscan-ios/blob/BuildFramework/CardScan.xcframework.zip",
+                checksum: "80b5bfe7cdb44c2c3f95cb32e87d5c18d8481f74aaa8b4a4ee17e4fc4a9cbe76"
+            )
+        ]
 )
