@@ -237,8 +237,6 @@ public protocol TestingImageDataSource: AnyObject {
         setNeedsStatusBarAppearanceUpdate()
         regionOfInterestLabel.layer.masksToBounds = true
         regionOfInterestLabel.layer.cornerRadius = self.regionOfInterestCornerRadius
-        regionOfInterestLabel.layer.borderColor = UIColor.white.cgColor
-        regionOfInterestLabel.layer.borderWidth = 2.0
         
         if !ScanBaseViewController.isPadAndFormsheet {
             UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
@@ -313,6 +311,7 @@ public protocol TestingImageDataSource: AnyObject {
         self.regionOfInterestLabelFrame = roiFrame
         self.previewViewFrame = previewViewFrame
         self.setUpCorners()
+        self.drawCornersOnRoi()
         self.setupMask()
     }
     
@@ -457,5 +456,97 @@ public protocol TestingImageDataSource: AnyObject {
     public func shouldUsePrediction(errorCorrectedNumber: String?, prediction: CreditCardOcrPrediction) -> Bool {
         guard let predictedNumber = prediction.number else { return true }
         return useCurrentFrameNumber(errorCorrectedNumber: errorCorrectedNumber, currentFrameNumber: predictedNumber)
+    }
+    
+    private func drawCornersOnRoi() {
+        guard let view = regionOfInterestLabel else { return }
+        let cornerLenghtWidth: CGFloat = view.bounds.size.width / 3
+        let cornerLenghtHeight: CGFloat = view.bounds.size.height / 3.5
+        let cornerRadius = view.layer.cornerRadius
+        
+        let upperLeftPoint = CGPoint(x: view.bounds.origin.x, y: view.bounds.origin.y)
+        let upperRightPoint = CGPoint(x: view.bounds.size.width, y: view.bounds.origin.y)
+        let lowerRightPoint = CGPoint(x: view.bounds.size.width, y: view.bounds.size.height)
+        let lowerLeftPoint = CGPoint(x: view.bounds.origin.x, y: view.bounds.size.height)
+        
+        let upperLeftCorner = UIBezierPath()
+        upperLeftCorner.move(to: upperLeftPoint.offsetBy(dx: 0, dy: cornerLenghtHeight))
+        upperLeftCorner.addArc(
+            withCenter: upperLeftPoint.offsetBy(
+                dx: cornerRadius,
+                dy: cornerRadius
+            ),
+            radius: cornerRadius,
+            startAngle: .pi,
+            endAngle: 3 * .pi / 2,
+            clockwise: true
+        )
+        upperLeftCorner.addLine(to: upperLeftPoint.offsetBy(dx: cornerLenghtWidth, dy: 0))
+        
+        let upperRightCorner = UIBezierPath()
+        upperRightCorner.move(to: upperRightPoint.offsetBy(dx: -cornerLenghtWidth, dy: 0))
+        upperRightCorner.addArc(
+            withCenter: upperRightPoint.offsetBy(
+                dx: -cornerRadius,
+                dy: cornerRadius
+            ),
+            radius: cornerRadius,
+            startAngle: 3 * .pi / 2,
+            endAngle: 0,
+            clockwise: true
+        )
+        upperRightCorner.addLine(to: upperRightPoint.offsetBy(dx: 0, dy: cornerLenghtHeight))
+        
+        let lowerRightCorner = UIBezierPath()
+        lowerRightCorner.move(to: lowerRightPoint.offsetBy(dx: 0, dy: -cornerLenghtHeight))
+        lowerRightCorner.addArc(
+            withCenter: lowerRightPoint.offsetBy(
+                dx: -cornerRadius, dy: -cornerRadius
+            ),
+            radius: cornerRadius,
+            startAngle: 0,
+            endAngle: .pi / 2,
+            clockwise: true
+        )
+        lowerRightCorner.addLine(to: lowerRightPoint.offsetBy(dx: -cornerLenghtWidth, dy: 0))
+        
+        let bottomLeftCorner = UIBezierPath()
+        bottomLeftCorner.move(to: lowerLeftPoint.offsetBy(dx: cornerLenghtWidth, dy: 0))
+        bottomLeftCorner.addArc(
+            withCenter: lowerLeftPoint.offsetBy(
+                dx: cornerRadius,
+                dy: -cornerRadius
+            ),
+            radius: cornerRadius,
+            startAngle: .pi / 2,
+            endAngle: .pi,
+            clockwise: true
+        )
+        bottomLeftCorner.addLine(to: lowerLeftPoint.offsetBy(dx: 0, dy: -cornerLenghtHeight))
+        
+        let combinedPath = CGMutablePath()
+        combinedPath.addPath(upperLeftCorner.cgPath)
+        combinedPath.addPath(upperRightCorner.cgPath)
+        combinedPath.addPath(lowerRightCorner.cgPath)
+        combinedPath.addPath(bottomLeftCorner.cgPath)
+        
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = combinedPath
+        shapeLayer.cornerRadius = 12
+        shapeLayer.strokeColor = UIColor.white.cgColor
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = 5.0
+        shapeLayer.lineCap = .round
+        
+        view.layer.addSublayer(shapeLayer)
+    }
+}
+
+internal extension CGPoint {
+    func offsetBy(dx: CGFloat, dy: CGFloat) -> CGPoint {
+        var point = self
+        point.x += dx
+        point.y += dy
+        return point
     }
 }
